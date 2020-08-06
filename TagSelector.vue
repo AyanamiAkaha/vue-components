@@ -4,6 +4,7 @@
     <input
       :id="id"
       :list="`${id}-datalist`"
+      :placeholder="placeholder"
       v-model="userInput"
       @keyup="datalist = suggest(userInput)"
       @focus="datalist = suggest(userInput)"
@@ -34,6 +35,11 @@ export default {
       type: Array,
       required: true,
     },
+    placeholder: {
+      type: String,
+      required: false,
+      default: '',
+    },
   },
   data() {
     return {
@@ -42,12 +48,15 @@ export default {
     };
   },
   methods: {
-    select() {
+    select(ev) {
       let tag = this.userInput;
       if (/^\s*$/.test(tag)) return;
       tag = tag.replace(/(^[\s,]+|[\s,]+$)/gu, '');
       this.userInput = '';
       this.$emit('input', [...this.value, tag]);
+      // do not propagate enter if we added something.
+      // still propagates if we returned early due to empty input
+      if (ev.keyCode === 13) ev.stopPropagation();
     },
     handleBackspace() {
       if (this.userInput === '') {
